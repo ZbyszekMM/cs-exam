@@ -17,7 +17,7 @@ export EXT_APP_PORT=80     # port on which node app should be available outside 
 
 if [ ! -e db-pswds.sh ]
 then 
-   echo "db-pswds.sh with mysql initial users setting does not exist. Terminating .."
+   echo "db-pswds.sh with mysql initial users setting does not exist. See README.txt for more info Terminating .."
    exit 1
 fi
 
@@ -56,6 +56,11 @@ envsubst < templates/.env-tpl >> .env   # environment vars for docker-compose of
 echo $WARNING > ./db/data/readiness-probe.sh
 envsubst < templates/readiness-probe-tpl.sh >> ./db/data/readiness-probe.sh  # mysql startup hook command 
 chmod +x ./db/data/readiness-probe.sh
+
+if [ ! -d "./db/data/scripts" ] 
+then
+    mkdir ./db/data/scripts
+fi
 
 echo $WARNING > ./db/data/scripts/script.sql
 envsubst < templates/script-tpl.sql >> ./db/data/scripts/script.sql  
