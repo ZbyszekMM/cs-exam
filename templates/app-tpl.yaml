@@ -1,0 +1,40 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: cs-app
+  name: cs-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cs-app
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: cs-app
+    spec:
+      containers:
+      - image: $DOCKER_USER/cs-exam-app:$SHA
+        name: app-c
+        env:
+        - name: MYSQL_DATABASE
+          value: $MYSQL_DATABASE  
+        - name: INT_APP_PORT
+          value: "$INT_APP_PORT"
+        envFrom:
+        - secretRef:
+            name: db-user-credentials  
+        ports:
+        - containerPort: $INT_APP_PORT
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "wget -O- localhost:$INT_APP_PORT"
+        resources: {}

@@ -1,0 +1,1 @@
+This directory contains templates files, it is OK to edit them.

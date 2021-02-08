@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  creationTimestamp: null
+  labels:
+    app: db
+  name: db
+spec:
+  replicas: 1 
+  serviceName: db-service
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: db
+    spec:
+      securityContext: # the customized mysql image runs as user mysql. However, as the result the volumes bound by root are unusable
+        fsGroup: 999   # This setting resolves issue with binding volumes by non root user. 
+      containers:
+      - image: $DOCKER_USER/cs-exam-mysql:$SHA  
+        name: db
+        env:
+        - name: MYSQL_DATABASE
+          value: $MYSQL_DATABASE  
+        envFrom:
+        - secretRef:
+            name: db-root-credentials   
+        - secretRef:
+            name: db-user-credentials   
+        ports:
+        - containerPort: 3306
+          name: cs-exam-p    
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        startupProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "/data/readiness-probe.sh >> /tmp/cs-db-startup-log.txt"
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          failureThreshold: 30
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "/data/readiness-probe.sh"
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      storageClassName: "stateful-apps-sc"
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

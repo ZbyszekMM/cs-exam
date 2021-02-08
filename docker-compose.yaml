@@ -1,0 +1,36 @@
+version: '3.7'
+
+
+services:
+  db-service:
+    image: '$DOCKER_USER/cs-exam-mysql:$SHA'
+    build: ./db
+    ports:
+    - "3306:3306"
+    volumes:
+    - type: volume
+      source: data-volume
+      target: /var/lib/mysql # empty dir/volume mounted here triggers scripts from docker-entrypoint-initdb.d on initial startup 
+      read_only: false
+    restart: "unless-stopped" 
+    environment:
+    - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+    - MYSQL_USER=$MYSQL_USER
+    - MYSQL_PASSWORD=$MYSQL_PASSWORD
+    - MYSQL_DATABASE=$MYSQL_DATABASE
+  node-app-service:
+    image: '$DOCKER_USER/cs-exam-app:$SHA' 
+    build: ./app      
+    ports:        
+    - "$EXT_APP_PORT:$INT_APP_PORT" 
+    restart: "unless-stopped" 
+    depends_on: 
+    - db-service
+    environment:
+    - MYSQL_USER=$MYSQL_USER
+    - MYSQL_PASSWORD=$MYSQL_PASSWORD
+    - MYSQL_DATABASE=$MYSQL_DATABASE
+    - INT_APP_PORT=$INT_APP_PORT
+volumes:
+  data-volume:
+  

@@ -1,0 +1,12 @@
+.env
+app/node_modules/
+app/package-lock.json
+db/data/scripts/script.sql
+db/data/readiness-probe.sh
+db-pswds.sh
+k8/app.yaml
+k8/load-balancer.yaml
+k8/setup-mysql-secrets.sh
+k8/stateful-set.yaml
+update-images.sh
+/tmp

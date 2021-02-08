@@ -1,0 +1,29 @@
+# 
+# Lean base image, as you requested 
+
+FROM node:alpine as builder
+
+WORKDIR /usr/app
+
+# Let's deal with the dependencies first. They do not change often, so it makes sense to install them first
+
+COPY ./package.json ./
+RUN npm install
+# most often cache will be used until this point, so builds resulting from app changes should be fairly quick
+
+# copy and build application code now as well. 
+COPY ./ ./
+RUN npm build
+
+FROM nginx
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# copy app files built in previous step
+COPY --from=builder /usr/app/build /usr/share/nginx/html  
+
+# not needed, but helps sometimes. Specify this port if launched without docker-compose assistance
+EXPOSE 3000
+
+
+
+   

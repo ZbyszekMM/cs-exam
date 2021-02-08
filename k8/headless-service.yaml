@@ -1,0 +1,14 @@
+# headless service required by stateful set
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-service
+spec:
+  clusterIP: None
+  selector:
+    app: db
+  ports:
+  - name: sql-port
+    port: 3306
+    targetPort: 3306
+

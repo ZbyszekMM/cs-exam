@@ -1,0 +1,8 @@
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: stateful-apps-sc
+provisioner: kubernetes.io/gce-pd # this can be change to another provisioner, however parameters may be required
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
